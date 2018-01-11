@@ -71,6 +71,13 @@ if [ -e /var/lib/boot2docker/bootsync.sh ]; then
     echo "------------------- ran /var/lib/boot2docker/bootsync.sh"
 fi
 
+rm -fr /srv
+rm -fr /mnt
+mkdir -p /disk/sda1/srv
+mkdir -p /disk/sda1/mnt
+ln -s /disk/sda1/srv /srv
+ln -s /disk/sda1/mnt /mnt
+
 # Launch Docker
 /etc/rc.d/docker
 

@@ -95,21 +95,21 @@ echo $BOOT2DOCKER_DATA
 if [ -n "$BOOT2DOCKER_DATA" ]; then
     PARTNAME=`echo "$BOOT2DOCKER_DATA" | sed 's/.*\///'`
     echo "mount p:$PARTNAME ..."
-    mkdir -p /mnt/$PARTNAME
-    if ! mount $BOOT2DOCKER_DATA /mnt/$PARTNAME 2>/dev/null; then
+    mkdir -p /disk/$PARTNAME
+    if ! mount $BOOT2DOCKER_DATA /disk/$PARTNAME 2>/dev/null; then
         # for some reason, mount doesn't like to modprobe btrfs
         BOOT2DOCKER_FSTYPE=`blkid -o export $BOOT2DOCKER_DATA | grep TYPE= | cut -d= -f2`
         modprobe $BOOT2DOCKER_FSTYPE || true
-        umount -f /mnt/$PARTNAME || true
-        mount $BOOT2DOCKER_DATA /mnt/$PARTNAME
+        umount -f /disk/$PARTNAME || true
+        mount $BOOT2DOCKER_DATA /disk/$PARTNAME
     fi
 
     # Just in case, the links will fail if not
     umount -f /var/lib/docker || true
     rm -rf /var/lib/docker /var/lib/boot2docker
-    if [ -d /mnt/$PARTNAME/vm ]; then
+    if [ -d /disk/$PARTNAME/vm ]; then
         # The old behavior - use the entire disk for boot2docker data
-        ln -s /mnt/$PARTNAME /var/lib/docker
+        ln -s /disk/$PARTNAME /var/lib/docker
 
         # Give us a link to the new cusomisation location
         ln -s /var/lib/docker/vm /var/lib/boot2docker
@@ -117,23 +117,23 @@ if [ -n "$BOOT2DOCKER_DATA" ]; then
         # Detected a disk with a normal linux install (/var/lib/docker + more))
         mkdir -p /var/lib
 
-        mkdir -p /mnt/$PARTNAME/var/lib/docker
-        ln -s /mnt/$PARTNAME/var/lib/docker /var/lib/docker
+        mkdir -p /disk/$PARTNAME/var/lib/docker
+        ln -s /disk/$PARTNAME/var/lib/docker /var/lib/docker
 
-        mkdir -p /mnt/$PARTNAME/var/lib/boot2docker
-        ln -s /mnt/$PARTNAME/var/lib/boot2docker /var/lib/boot2docker
+        mkdir -p /disk/$PARTNAME/var/lib/boot2docker
+        ln -s /disk/$PARTNAME/var/lib/boot2docker /var/lib/boot2docker
     fi
 
     # Make sure /tmp is on the disk too too
-    rm -rf /mnt/$PARTNAME/tmp || true
-    mv /tmp /mnt/$PARTNAME/tmp
-    ln -fs /mnt/$PARTNAME/tmp /tmp
+    rm -rf /disk/$PARTNAME/tmp || true
+    mv /tmp /disk/$PARTNAME/tmp
+    ln -fs /disk/$PARTNAME/tmp /tmp
 
     if [ -e "/userdata.tar" ]; then
         mv /userdata.tar /var/lib/boot2docker/
     fi
     
-    ls -l /mnt/$PARTNAME
+    ls -l /disk/$PARTNAME
 fi
 # /etc dirs are initialised from /usr/local, to allow the user/admin to customise
 mkdir -p /var/lib/boot2docker/etc/
